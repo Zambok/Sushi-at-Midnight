@@ -51,12 +51,26 @@ public class CustomerManager : MonoBehaviour
 
     private void SpawnCustomer()
     {
-        if (_customerPrefab == null)
+        // 1. 빈자리가 있는지 먼저 확인 (자리가 없으면 생성 자체를 안 함)
+        SeatSlot emptySeat = FindEmptySeat();
+
+        if (emptySeat == null)
         {
+            return; // 자리가 없으므로 함수 종료
+        }
+
+        // 2. 프리팹이나 프로필 데이터가 제대로 있는지 안전 장치
+        if (_customerPrefab == null || _availableProfiles == null || _availableProfiles.Count == 0)
+        {
+            Debug.LogWarning("CustomerManager: 프리팹이 없거나 할당된 프로필 데이터가 없습니다!");
             return;
         }
 
-        // 일단은 항상 Normal 고객만 생성. 나중에 확률이나 조건으로 Event 추가
+        // 3. 랜덤 프로필 선택 (여기서 50명 중 한 명을 뽑는 거야!)
+        int randomIndex = Random.Range(0, _availableProfiles.Count);
+        CustomerProfile selectedProfile = _availableProfiles[randomIndex];
+
+        // 4. 손님 오브젝트 생성
         GameObject customerObject = Instantiate(_customerPrefab, transform.position, Quaternion.identity);
         Customer customer = customerObject.GetComponent<Customer>();
 
@@ -65,7 +79,11 @@ public class CustomerManager : MonoBehaviour
             return;
         }
 
-        TrySeatOrEnqueue(customer);
+        // [중요] 5. 선택된 프로필을 손님에게 주입! (이름, 이미지 등이 여기서 바뀜)
+        customer.InitializeProfile(selectedProfile);
+
+        // 6. 바로 자리에 앉히기
+        emptySeat.AssignCustomer(customer);
     }
 
     private void TrySeatOrEnqueue(Customer customer)

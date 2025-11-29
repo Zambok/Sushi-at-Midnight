@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 311c3f8b289cc554898ae1bd4201984e, type: 3}
+  m_Name: NPC 3
+  m_EditorClassIdentifier: 
+  _id: Girl4
+  _displayName: "\uAC38\uB8E8\uC5EC\uC7904"
+  _customerType: 0
+  _emotionSprites:
+  - Emotion: 0
+    Sprite: {fileID: 6851395803852208936, guid: 15d43ea939cf8794baf96e1e27c9e7c1, type: 3}
+  _minDay: 1
+  _maxDay: 999
+  _spawnWeight: 1
+  _uniquePerDay: 0
+  _canMakeCustomOrders: 1
+  _customOrderProbability: 0.5
+  _orderPresets:
+  - _orderId: 123123
+    _baseRecipe: {fileID: 11400000, guid: e6d88776872a56d4fb2cfff93a99127e, type: 2}
+    _customRequest:
+      _hasRiceAmountRequest: 0
+      _riceAmountOffset: 0
+      _hasFishThicknessRequest: 0
+      _fishThicknessOffset: 0
+      _hasPressDurationRequest: 0
+      _pressDurationOffset: 0
+      _hasWasabiAmountRequest: 0
+      _wasabiAmountOffset: 0
+    _weight: 1
