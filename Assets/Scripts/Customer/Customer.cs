@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class Customer : MonoBehaviour
 {
@@ -6,9 +7,18 @@ public class Customer : MonoBehaviour
     [SerializeField] private CustomerType _customerType = CustomerType.Normal;
     [SerializeField] private float _basePatienceTime = 10f;
 
+    [Header("Animation Settings")]
+    [SerializeField] private float _fadeDuration = 0.5f;     // 입장 페이드 시간
+    [SerializeField] private float _bounceDuration = 0.3f;   // 튀어오르는 시간
+    [SerializeField] private Vector3 _bounceStrength = new Vector3(0.1f, 0.1f, 0); // 튀어오르는 강도
+    [SerializeField] private int _bounceVibrato = 10;        // 떨림 정도 (기본 10)
+    [SerializeField] private float _bounceElasticity = 1f;   // 탄성 (0~1)
+
+  
     private CustomerState _currentState = CustomerState.None;
     private float _currentPatienceTime;
     private SeatSlot _currentSeat;
+    private SpriteRenderer _spriteRenderer;
 
     public CustomerProfile Profile => _profile;
 
@@ -19,6 +29,11 @@ public class Customer : MonoBehaviour
     public CustomerState CurrentState => _currentState;
     public SeatSlot CurrentSeat => _currentSeat;
     public Order CurrentOrder => _currentOrder;
+
+    private void Awake()
+    {
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+    }
 
     private void OnEnable()
     {
@@ -39,6 +54,36 @@ public class Customer : MonoBehaviour
     public void InitializeProfile(CustomerProfile profile)
     {
         _profile = profile;
+
+        // 이름 설정
+        gameObject.name = $"Customer_{_profile.DisplayName}";
+
+        // 기본 표정으로 시작
+        SetEmotion(CustomerEmotion.Default);
+    }
+
+    public void SetEmotion(CustomerEmotion emotion)
+    {
+        if (_profile == null || _spriteRenderer == null) return;
+
+        Sprite targetSprite = _profile.GetSprite(emotion);
+
+        if (targetSprite != null)
+        {
+            _spriteRenderer.sprite = targetSprite;
+
+            // 이미지 바뀌면서 통통 튀기!
+            PlayBounceAnimation();
+        }
+    }
+
+    private void PlayBounceAnimation()
+    {
+        // 혹시 실행 중인 트윈이 있다면 중지하고 리셋 (겹침 방지)
+        transform.DOKill();
+
+        // PunchScale: '통' 하고 커졌다가 돌아오는 효과
+        transform.DOPunchScale(_bounceStrength, _bounceDuration, _bounceVibrato, _bounceElasticity);
     }
 
     private void UpdatePatience()
@@ -80,8 +125,18 @@ public class Customer : MonoBehaviour
 
     public void MoveToSeat(Vector3 seatPosition)
     {
-        // 일단 위치만 순간 이동. 나중에 이동 애니메이션이나 Path 추가 가능
-        transform.position = seatPosition;
+        transform.position = seatPosition + new Vector3(0, 0.339f, -0.1f);
+
+        // Dotween: 일단 검은색으로 시작
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = Color.black;
+
+            // 원래 색(White)으로 페이드 인
+            _spriteRenderer.DOColor(Color.white, _fadeDuration)
+                .SetEase(Ease.OutQuad); // 부드러운 감속 효과
+        }
+
         ChangeState(CustomerState.Ordering);
     }
 
