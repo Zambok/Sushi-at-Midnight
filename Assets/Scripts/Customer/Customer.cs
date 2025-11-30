@@ -1,5 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
+using PixelCrushers.DialogueSystem;
 
 public class Customer : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class Customer : MonoBehaviour
     private float _currentPatienceTime;
     private SeatSlot _currentSeat;
     private SpriteRenderer _spriteRenderer;
+    private DialogueActor _dialogueActor;
 
     public CustomerProfile Profile => _profile;
 
@@ -33,6 +35,12 @@ public class Customer : MonoBehaviour
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
+
+        _dialogueActor = GetComponent<DialogueActor>();
+        if (_dialogueActor == null)
+        {
+            _dialogueActor = gameObject.AddComponent<DialogueActor>();
+        }
     }
 
     private void OnEnable()
@@ -55,11 +63,27 @@ public class Customer : MonoBehaviour
     {
         _profile = profile;
 
-        // 이름 설정
+        // 외형 초기화
         gameObject.name = $"Customer_{_profile.DisplayName}";
+        if (_spriteRenderer != null && _profile.GetSprite(CustomerEmotion.Default) != null)
+        {
+            _spriteRenderer.sprite = _profile.GetSprite(CustomerEmotion.Default);
+        }
+
+        // 대화창에 표시될 이름을 프로필의 DisplayName으로 변경
+        _dialogueActor.actor = _profile.DisplayName;
 
         // 기본 표정으로 시작
         SetEmotion(CustomerEmotion.Default);
+    }
+
+    public void StartConversation(string conversationTitle)
+    {
+        // Dialogue Manager에게 대화 시작 요청
+        // 첫 번째 인자: 대화 제목 (Database에 있는 Conversation Title)
+        // 두 번째 인자: 대화 주체 (Player)
+        // 세 번째 인자: 대화 상대 (이 손님)
+        DialogueManager.StartConversation(conversationTitle, null, this.transform);
     }
 
     public void SetEmotion(CustomerEmotion emotion)
@@ -138,6 +162,12 @@ public class Customer : MonoBehaviour
         }
 
         ChangeState(CustomerState.Ordering);
+
+        // 자리에 앉으면 인사 대화 시작!
+        if (!string.IsNullOrEmpty(_profile.GreetingConversation))
+        {
+            StartConversation(_profile.GreetingConversation);
+        }
     }
 
     public void StartWaitingFood()

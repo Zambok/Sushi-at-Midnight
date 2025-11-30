@@ -33,6 +33,26 @@ public class CustomerProfile : ScriptableObject
     [SerializeField] private float _customOrderProbability = 0.5f;
     [SerializeField] private List<CustomerOrderPreset> _orderPresets = new List<CustomerOrderPreset>();
 
+    // [CustomerProfile.cs 내부 변수 선언 부분에 추가]
+
+    [Header("Dialogue Settings (Dialogue System)")]
+    [Tooltip("이 손님이 처음 앉았을 때 실행할 대화 제목 (Conversation Title)")]
+    [SerializeField] private string _greetingConversation;
+
+    [Tooltip("주문할 때 실행할 대화 제목 (선택 사항)")]
+    [SerializeField] private string _orderingConversation;
+
+    [Tooltip("음식을 먹고 나갈 때(성공) 실행할 대화 제목")]
+    [SerializeField] private string _happyExitConversation;
+
+    [Tooltip("화나서 나갈 때 실행할 대화 제목")]
+    [SerializeField] private string _angryExitConversation;
+
+    public string GreetingConversation => _greetingConversation;
+    public string OrderingConversation => _orderingConversation;
+    public string HappyExitConversation => _happyExitConversation;
+    public string AngryExitConversation => _angryExitConversation;
+
     // Properties
     public string Id => _id;
     public string DisplayName => _displayName;
@@ -77,7 +97,6 @@ public class CustomerProfile : ScriptableObject
     }
 }
 
-// [CustomerProfile.cs 파일 맨 아래에 추가]
 
 [System.Serializable]
 public class CustomerOrderPreset
