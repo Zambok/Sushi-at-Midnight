@@ -1,5 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
+using PixelCrushers.DialogueSystem;
 
 public class Customer : MonoBehaviour
 {
@@ -8,21 +9,22 @@ public class Customer : MonoBehaviour
     [SerializeField] private float _basePatienceTime = 10f;
 
     [Header("Animation Settings")]
-    [SerializeField] private float _fadeDuration = 0.5f;     // ÀÔÀå ÆäÀÌµå ½Ã°£
-    [SerializeField] private float _bounceDuration = 0.3f;   // Æ¢¾î¿À¸£´Â ½Ã°£
-    [SerializeField] private Vector3 _bounceStrength = new Vector3(0.1f, 0.1f, 0); // Æ¢¾î¿À¸£´Â °­µµ
-    [SerializeField] private int _bounceVibrato = 10;        // ¶³¸² Á¤µµ (±âº» 10)
-    [SerializeField] private float _bounceElasticity = 1f;   // Åº¼º (0~1)
+    [SerializeField] private float _fadeDuration = 0.5f;     // ì…ì¥ í˜ì´ë“œ ì‹œê°„
+    [SerializeField] private float _bounceDuration = 0.3f;   // íŠ€ì–´ì˜¤ë¥´ëŠ” ì‹œê°„
+    [SerializeField] private Vector3 _bounceStrength = new Vector3(0.1f, 0.1f, 0); // íŠ€ì–´ì˜¤ë¥´ëŠ” ê°•ë„
+    [SerializeField] private int _bounceVibrato = 10;        // ë–¨ë¦¼ ì •ë„ (ê¸°ë³¸ 10)
+    [SerializeField] private float _bounceElasticity = 1f;   // íƒ„ì„± (0~1)
 
   
     private CustomerState _currentState = CustomerState.None;
     private float _currentPatienceTime;
     private SeatSlot _currentSeat;
     private SpriteRenderer _spriteRenderer;
+    private DialogueActor _dialogueActor;
 
     public CustomerProfile Profile => _profile;
 
-    // Order °ü·Ã ÂüÁ¶´Â Order Æú´õ ¼³°è ÈÄ ¿¬°á ¿¹Á¤
+    // Order ê´€ë ¨ ì°¸ì¡°ëŠ” Order í´ë” ì„¤ê³„ í›„ ì—°ê²° ì˜ˆì •
     private Order _currentOrder;
 
     public CustomerType CustomerType => _customerType;
@@ -33,6 +35,12 @@ public class Customer : MonoBehaviour
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
+
+        _dialogueActor = GetComponent<DialogueActor>();
+        if (_dialogueActor == null)
+        {
+            _dialogueActor = gameObject.AddComponent<DialogueActor>();
+        }
     }
 
     private void OnEnable()
@@ -55,11 +63,27 @@ public class Customer : MonoBehaviour
     {
         _profile = profile;
 
-        // ÀÌ¸§ ¼³Á¤
+        // ì™¸í˜• ì´ˆê¸°í™”
         gameObject.name = $"Customer_{_profile.DisplayName}";
+        if (_spriteRenderer != null && _profile.GetSprite(CustomerEmotion.Default) != null)
+        {
+            _spriteRenderer.sprite = _profile.GetSprite(CustomerEmotion.Default);
+        }
 
-        // ±âº» Ç¥Á¤À¸·Î ½ÃÀÛ
+        // ëŒ€í™”ì°½ì— í‘œì‹œë  ì´ë¦„ì„ í”„ë¡œí•„ì˜ DisplayNameìœ¼ë¡œ ë³€ê²½
+        _dialogueActor.actor = _profile.DisplayName;
+
+        // ê¸°ë³¸ í‘œì •ìœ¼ë¡œ ì‹œì‘
         SetEmotion(CustomerEmotion.Default);
+    }
+
+    public void StartConversation(string conversationTitle)
+    {
+        // Dialogue Managerì—ê²Œ ëŒ€í™” ì‹œì‘ ìš”ì²­
+        // ì²« ë²ˆì§¸ ì¸ì: ëŒ€í™” ì œëª© (Databaseì— ìˆëŠ” Conversation Title)
+        // ë‘ ë²ˆì§¸ ì¸ì: ëŒ€í™” ì£¼ì²´ (Player)
+        // ì„¸ ë²ˆì§¸ ì¸ì: ëŒ€í™” ìƒëŒ€ (ì´ ì†ë‹˜)
+        DialogueManager.StartConversation(conversationTitle, null, this.transform);
     }
 
     public void SetEmotion(CustomerEmotion emotion)
@@ -72,17 +96,17 @@ public class Customer : MonoBehaviour
         {
             _spriteRenderer.sprite = targetSprite;
 
-            // ÀÌ¹ÌÁö ¹Ù²î¸é¼­ ÅëÅë Æ¢±â!
+            // ì´ë¯¸ì§€ ë°”ë€Œë©´ì„œ í†µí†µ íŠ€ê¸°!
             PlayBounceAnimation();
         }
     }
 
     private void PlayBounceAnimation()
     {
-        // È¤½Ã ½ÇÇà ÁßÀÎ Æ®À©ÀÌ ÀÖ´Ù¸é ÁßÁöÇÏ°í ¸®¼Â (°ãÄ§ ¹æÁö)
+        // í˜¹ì‹œ ì‹¤í–‰ ì¤‘ì¸ íŠ¸ìœˆì´ ìˆë‹¤ë©´ ì¤‘ì§€í•˜ê³  ë¦¬ì…‹ (ê²¹ì¹¨ ë°©ì§€)
         transform.DOKill();
 
-        // PunchScale: 'Åë' ÇÏ°í Ä¿Á³´Ù°¡ µ¹¾Æ¿À´Â È¿°ú
+        // PunchScale: 'í†µ' í•˜ê³  ì»¤ì¡Œë‹¤ê°€ ëŒì•„ì˜¤ëŠ” íš¨ê³¼
         transform.DOPunchScale(_bounceStrength, _bounceDuration, _bounceVibrato, _bounceElasticity);
     }
 
@@ -104,7 +128,7 @@ public class Customer : MonoBehaviour
 
     private void HandlePatienceTimeout()
     {
-        // ³ªÁß¿¡ ½ÇÆĞ Ã³¸®, ¼Õ´Ô È­³², Á¡¼ö ÆĞ³ÎÆ¼ µî ¿¬°á
+        // ë‚˜ì¤‘ì— ì‹¤íŒ¨ ì²˜ë¦¬, ì†ë‹˜ í™”ë‚¨, ì ìˆ˜ íŒ¨ë„í‹° ë“± ì—°ê²°
         LeaveRestaurant();
     }
 
@@ -127,17 +151,23 @@ public class Customer : MonoBehaviour
     {
         transform.position = seatPosition + new Vector3(0, 0.339f, -0.1f);
 
-        // Dotween: ÀÏ´Ü °ËÀº»öÀ¸·Î ½ÃÀÛ
+        // Dotween: ì¼ë‹¨ ê²€ì€ìƒ‰ìœ¼ë¡œ ì‹œì‘
         if (_spriteRenderer != null)
         {
             _spriteRenderer.color = Color.black;
 
-            // ¿ø·¡ »ö(White)À¸·Î ÆäÀÌµå ÀÎ
+            // ì›ë˜ ìƒ‰(White)ìœ¼ë¡œ í˜ì´ë“œ ì¸
             _spriteRenderer.DOColor(Color.white, _fadeDuration)
-                .SetEase(Ease.OutQuad); // ºÎµå·¯¿î °¨¼Ó È¿°ú
+                .SetEase(Ease.OutQuad); // ë¶€ë“œëŸ¬ìš´ ê°ì† íš¨ê³¼
         }
 
         ChangeState(CustomerState.Ordering);
+
+        // ìë¦¬ì— ì•‰ìœ¼ë©´ ì¸ì‚¬ ëŒ€í™” ì‹œì‘!
+        if (!string.IsNullOrEmpty(_profile.GreetingConversation))
+        {
+            StartConversation(_profile.GreetingConversation);
+        }
     }
 
     public void StartWaitingFood()
@@ -148,7 +178,7 @@ public class Customer : MonoBehaviour
 
     public void ReceiveFood(SushiPlate sushiPlate)
     {
-        // ¿©±â¼­ Order¿Í SushiPlate¸¦ ºñ±³ÇÏ´Â ·ÎÁ÷Àº Order Æú´õ ¼³°è ÈÄ Ãß°¡
+        // ì—¬ê¸°ì„œ Orderì™€ SushiPlateë¥¼ ë¹„êµí•˜ëŠ” ë¡œì§ì€ Order í´ë” ì„¤ê³„ í›„ ì¶”ê°€
         ChangeState(CustomerState.Eating);
     }
 

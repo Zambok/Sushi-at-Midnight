@@ -39,3 +39,7 @@ MonoBehaviour:
       _hasWasabiAmountRequest: 0
       _wasabiAmountOffset: 0
     _weight: 1
+  _greetingConversation: Girl_Greeting
+  _orderingConversation: 
+  _happyExitConversation: 
+  _angryExitConversation: 

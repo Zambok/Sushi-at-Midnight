@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 public enum CustomerEmotion
 {
-    Default,    // ±âº» »óÅÂ (ÀÔÀå, ´ë±â)
-    Talking,    // ´ëÈ­ Áß
-    Happy,      // ¸ÀÀÖÀ½ (Delicious)
-    Angry,      // ¸À¾øÀ½ (Bad)
-    Perfect,    // ¿Ïº®ÇÔ (Perfect)
-    Signature   // ½Ã±×´ÏÃ³/½ºÅä¸® ÀÌº¥Æ®
+    Default,    // ê¸°ë³¸ ìƒíƒœ (ì…ì¥, ëŒ€ê¸°)
+    Talking,    // ëŒ€í™” ì¤‘
+    Happy,      // ë§›ìˆìŒ (Delicious)
+    Angry,      // ë§›ì—†ìŒ (Bad)
+    Perfect,    // ì™„ë²½í•¨ (Perfect)
+    Signature   // ì‹œê·¸ë‹ˆì²˜/ìŠ¤í† ë¦¬ ì´ë²¤íŠ¸
 }
 
 [CreateAssetMenu(fileName = "CustomerProfile_", menuName = "SushiGame/Customer/CustomerProfile")]
@@ -19,7 +19,7 @@ public class CustomerProfile : ScriptableObject
     [SerializeField] private CustomerType _customerType = CustomerType.Normal;
 
     [Header("Visuals")]
-    // °¨Á¤°ú ½ºÇÁ¶óÀÌÆ®¸¦ Â¦ÁöÀ» ±¸Á¶Ã¼
+    // ê°ì •ê³¼ ìŠ¤í”„ë¼ì´íŠ¸ë¥¼ ì§ì§€ì„ êµ¬ì¡°ì²´
     [SerializeField] private List<EmotionSprite> _emotionSprites = new List<EmotionSprite>();
 
     [Header("Spawn Settings")]
@@ -32,6 +32,26 @@ public class CustomerProfile : ScriptableObject
     [SerializeField] private bool _canMakeCustomOrders = true;
     [SerializeField] private float _customOrderProbability = 0.5f;
     [SerializeField] private List<CustomerOrderPreset> _orderPresets = new List<CustomerOrderPreset>();
+
+    // [CustomerProfile.cs ë‚´ë¶€ ë³€ìˆ˜ ì„ ì–¸ ë¶€ë¶„ì— ì¶”ê°€]
+
+    [Header("Dialogue Settings (Dialogue System)")]
+    [Tooltip("ì´ ì†ë‹˜ì´ ì²˜ìŒ ì•‰ì•˜ì„ ë•Œ ì‹¤í–‰í•  ëŒ€í™” ì œëª© (Conversation Title)")]
+    [SerializeField] private string _greetingConversation;
+
+    [Tooltip("ì£¼ë¬¸í•  ë•Œ ì‹¤í–‰í•  ëŒ€í™” ì œëª© (ì„ íƒ ì‚¬í•­)")]
+    [SerializeField] private string _orderingConversation;
+
+    [Tooltip("ìŒì‹ì„ ë¨¹ê³  ë‚˜ê°ˆ ë•Œ(ì„±ê³µ) ì‹¤í–‰í•  ëŒ€í™” ì œëª©")]
+    [SerializeField] private string _happyExitConversation;
+
+    [Tooltip("í™”ë‚˜ì„œ ë‚˜ê°ˆ ë•Œ ì‹¤í–‰í•  ëŒ€í™” ì œëª©")]
+    [SerializeField] private string _angryExitConversation;
+
+    public string GreetingConversation => _greetingConversation;
+    public string OrderingConversation => _orderingConversation;
+    public string HappyExitConversation => _happyExitConversation;
+    public string AngryExitConversation => _angryExitConversation;
 
     // Properties
     public string Id => _id;
@@ -47,10 +67,10 @@ public class CustomerProfile : ScriptableObject
     public float CustomOrderProbability => _customOrderProbability;
     public IReadOnlyList<CustomerOrderPreset> OrderPresets => _orderPresets;
 
-    // --- ÇÙ½É ±â´É: °¨Á¤¿¡ ¸Â´Â ½ºÇÁ¶óÀÌÆ® Ã£¾Æ¿À±â ---
+    // --- í•µì‹¬ ê¸°ëŠ¥: ê°ì •ì— ë§ëŠ” ìŠ¤í”„ë¼ì´íŠ¸ ì°¾ì•„ì˜¤ê¸° ---
     public Sprite GetSprite(CustomerEmotion emotion)
     {
-        // ¸®½ºÆ®¿¡¼­ ÇØ´ç °¨Á¤À» Ã£À½
+        // ë¦¬ìŠ¤íŠ¸ì—ì„œ í•´ë‹¹ ê°ì •ì„ ì°¾ìŒ
         foreach (var item in _emotionSprites)
         {
             if (item.Emotion == emotion)
@@ -59,7 +79,7 @@ public class CustomerProfile : ScriptableObject
             }
         }
 
-        // ¸ø Ã£À¸¸é Default ¹İÈ¯, ±×°Íµµ ¾øÀ¸¸é null
+        // ëª» ì°¾ìœ¼ë©´ Default ë°˜í™˜, ê·¸ê²ƒë„ ì—†ìœ¼ë©´ null
         if (emotion != CustomerEmotion.Default)
         {
             return GetSprite(CustomerEmotion.Default);
@@ -68,7 +88,7 @@ public class CustomerProfile : ScriptableObject
         return null;
     }
 
-    // ÀÎ½ºÆåÅÍ ¼³Á¤À» À§ÇÑ ³»ºÎ Å¬·¡½º
+    // ì¸ìŠ¤í™í„° ì„¤ì •ì„ ìœ„í•œ ë‚´ë¶€ í´ë˜ìŠ¤
     [System.Serializable]
     public class EmotionSprite
     {
@@ -77,28 +97,27 @@ public class CustomerProfile : ScriptableObject
     }
 }
 
-// [CustomerProfile.cs ÆÄÀÏ ¸Ç ¾Æ·¡¿¡ Ãß°¡]
 
 [System.Serializable]
 public class CustomerOrderPreset
 {
     [Header("Order Identity")]
-    [Tooltip("½ºÅä¸® Á¶°Ç Ã¼Å©¿ë ID (¿¹: order_police_first)")]
+    [Tooltip("ìŠ¤í† ë¦¬ ì¡°ê±´ ì²´í¬ìš© ID (ì˜ˆ: order_police_first)")]
     [SerializeField] private string _orderId;
 
     [Header("Base Recipe")]
-    [Tooltip("¼Õ´ÔÀÌ ÁÖ¹®ÇÒ ±âº» ·¹½ÃÇÇ")]
+    [Tooltip("ì†ë‹˜ì´ ì£¼ë¬¸í•  ê¸°ë³¸ ë ˆì‹œí”¼")]
     [SerializeField] private SushiRecipe _baseRecipe;
 
     [Header("Optional Custom Request")]
-    [Tooltip("Æ¯º° ¿äÃ» »çÇ× (¾øÀ¸¸é ºñ¿öµµ µÊ)")]
+    [Tooltip("íŠ¹ë³„ ìš”ì²­ ì‚¬í•­ (ì—†ìœ¼ë©´ ë¹„ì›Œë„ ë¨)")]
     [SerializeField] private SushiCustomRequest _customRequest;
 
     [Header("Weight")]
-    [Tooltip("¿©·¯ ÇÁ¸®¼Â Áß ¼±ÅÃµÉ È®·ü °¡ÁßÄ¡ (³ôÀ»¼ö·Ï ÀÚÁÖ ÁÖ¹®)")]
+    [Tooltip("ì—¬ëŸ¬ í”„ë¦¬ì…‹ ì¤‘ ì„ íƒë  í™•ë¥  ê°€ì¤‘ì¹˜ (ë†’ì„ìˆ˜ë¡ ìì£¼ ì£¼ë¬¸)")]
     [SerializeField] private float _weight = 1f;
 
-    // ¿ÜºÎ¿¡¼­ µ¥ÀÌÅÍ¸¦ ÀĞ±â À§ÇÑ ÇÁ·ÎÆÛÆ¼
+    // ì™¸ë¶€ì—ì„œ ë°ì´í„°ë¥¼ ì½ê¸° ìœ„í•œ í”„ë¡œí¼í‹°
     public string OrderId => _orderId;
     public SushiRecipe BaseRecipe => _baseRecipe;
     public SushiCustomRequest CustomRequest => _customRequest;
