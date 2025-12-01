@@ -1,140 +1,149 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// [추가] 2인 손님 조합을 정의하기 위한 클래스
+[System.Serializable]
+public class DuoScenario
+{
+    public string ScenarioName; // 구분용 이름 (예: 경찰_학생_이벤트)
+    public CustomerProfile LeftProfile;
+    public CustomerProfile RightProfile;
+    [Range(0f, 1f)] public float Probability = 0.1f; // 등장 확률
+}
+
 public class CustomerManager : MonoBehaviour
 {
-    [SerializeField] private SeatSlot[] _seatSlots;
+    [Header("Seat Configurations")]
+    [Tooltip("혼자 온 일반 손님이 앉을 자리")]
+    [SerializeField] private SeatSlot _seatCenter;
+
+    [Tooltip("2인 손님(왼쪽)")]
+    [SerializeField] private SeatSlot _seatLeft;
+
+    [Tooltip("2인 손님(오른쪽)")]
+    [SerializeField] private SeatSlot _seatRight;
+
+    [Header("Spawn Settings")]
     [SerializeField] private GameObject _customerPrefab;
-    [SerializeField] private List<CustomerProfile> _availableProfiles;
-    //[SerializeField] private DayManager _dayManager;
 
-    [SerializeField] private float _spawnInterval = 3f;
-    [SerializeField] private int _maxActiveSeats = 4;
+    [Tooltip("일반 손님(1인)으로 등장할 프로필 목록")]
+    [SerializeField] private List<CustomerProfile> _normalProfiles;
 
-    private readonly Queue<Customer> _waitingQueue = new Queue<Customer>();
-    private float _spawnTimer;
+    [Tooltip("이벤트성 2인 손님 조합 목록")]
+    [SerializeField] private List<DuoScenario> _eventDuoPresets;
+
+    [Tooltip("손님이 나가고 다음 손님이 올 때까지 대기 시간")]
+    [SerializeField] private float _nextSpawnDelay = 2.0f;
+
+    [Tooltip("이벤트(2인)가 발생할 확률 (0~1)")]
+    [SerializeField] private float _eventChance = 0.2f;
+
     private bool _isServiceRunning;
+    private int _currentActiveCustomers = 0; // 현재 앉아있는 손님 수
 
+    // --- 초기화 및 실행 ---
     public void BeginService()
     {
         _isServiceRunning = true;
-        _spawnTimer = 0f;
+        // 서비스 시작 시 첫 손님 호출
+        StartCoroutine(SpawnRoutine(_nextSpawnDelay));
     }
 
     public void EndService()
     {
         _isServiceRunning = false;
+        StopAllCoroutines();
     }
 
-    private void Update()
+    // --- 손님 퇴장 감지 ---
+    // Customer 스크립트에서 퇴장할 때 이 함수를 호출해줌
+    public void OnCustomerExit(Customer customer)
     {
-        if (_isServiceRunning == false)
+        _currentActiveCustomers--;
+
+        // 앉아있는 손님이 모두 떠났다면 다음 손님 준비
+        if (_currentActiveCustomers <= 0)
         {
-            return;
-        }
+            _currentActiveCustomers = 0; // 안전장치
 
-        UpdateSpawnTimer();
-    }
-
-    private void UpdateSpawnTimer()
-    {
-        _spawnTimer -= Time.deltaTime;
-
-        if (_spawnTimer > 0f)
-        {
-            return;
-        }
-
-        _spawnTimer = _spawnInterval;
-        SpawnCustomer();
-    }
-
-    private void SpawnCustomer()
-    {
-        // 1. 빈자리가 있는지 먼저 확인 (자리가 없으면 생성 자체를 안 함)
-        SeatSlot emptySeat = FindEmptySeat();
-
-        if (emptySeat == null)
-        {
-            return; // 자리가 없으므로 함수 종료
-        }
-
-        // 2. 프리팹이나 프로필 데이터가 제대로 있는지 안전 장치
-        if (_customerPrefab == null || _availableProfiles == null || _availableProfiles.Count == 0)
-        {
-            Debug.LogWarning("CustomerManager: 프리팹이 없거나 할당된 프로필 데이터가 없습니다!");
-            return;
-        }
-
-        // 3. 랜덤 프로필 선택 (여기서 50명 중 한 명을 뽑는 거야!)
-        int randomIndex = Random.Range(0, _availableProfiles.Count);
-        CustomerProfile selectedProfile = _availableProfiles[randomIndex];
-
-        // 4. 손님 오브젝트 생성
-        GameObject customerObject = Instantiate(_customerPrefab, transform.position, Quaternion.identity);
-        Customer customer = customerObject.GetComponent<Customer>();
-
-        if (customer == null)
-        {
-            return;
-        }
-
-        // [중요] 5. 선택된 프로필을 손님에게 주입! (이름, 이미지 등이 여기서 바뀜)
-        customer.InitializeProfile(selectedProfile);
-
-        // 6. 바로 자리에 앉히기
-        emptySeat.AssignCustomer(customer);
-    }
-
-    private void TrySeatOrEnqueue(Customer customer)
-    {
-        SeatSlot emptySeat = FindEmptySeat();
-
-        if (emptySeat != null)
-        {
-            emptySeat.AssignCustomer(customer);
-            return;
-        }
-
-        _waitingQueue.Enqueue(customer);
-        // 대기열 위치 조정, 줄 서는 연출은 나중에 구현
-    }
-
-    private SeatSlot FindEmptySeat()
-    {
-        int count = 0;
-
-        foreach (SeatSlot seat in _seatSlots)
-        {
-            if (seat == null)
+            if (_isServiceRunning)
             {
-                continue;
+                StartCoroutine(SpawnRoutine(_nextSpawnDelay));
             }
-
-            if (seat.IsEmpty)
-            {
-                return seat;
-            }
-
-            count++;
         }
-
-        if (count >= _maxActiveSeats)
-        {
-            return null;
-        }
-
-        return null;
     }
 
-    public void OnSeatFreed(SeatSlot seat)
+    private IEnumerator SpawnRoutine(float delay)
     {
-        if (_waitingQueue.Count == 0)
-        {
-            return;
-        }
+        yield return new WaitForSeconds(delay);
 
-        Customer nextCustomer = _waitingQueue.Dequeue();
-        seat.AssignCustomer(nextCustomer);
+        if (_isServiceRunning)
+        {
+            SpawnNextGroup();
+        }
+    }
+
+    private void SpawnNextGroup()
+    {
+        // 1. 이벤트(2인) 발생 여부 체크
+        // (나중에는 StoryManager 등에서 강제로 이벤트를 발생시킬 수도 있음)
+        bool isEvent = Random.value < _eventChance;
+
+        if (isEvent && _eventDuoPresets.Count > 0)
+        {
+            if (_eventDuoPresets == null) return;
+            SpawnDuoEvent();
+        }
+        else
+        {
+            SpawnSoloNormal();
+        }
+    }
+
+    // --- 1인 일반 손님 생성 ---
+    private void SpawnSoloNormal()
+    {
+        if (_normalProfiles == null || _normalProfiles.Count == 0) return;
+
+        // 랜덤 프로필 선택
+        CustomerProfile profile = _normalProfiles[Random.Range(0, _normalProfiles.Count)];
+
+        _currentActiveCustomers = 1;
+        CreateCustomerAtSeat(_seatCenter, profile);
+    }
+
+    // --- 2인 이벤트 손님 생성 ---
+    private void SpawnDuoEvent()
+    {
+        // 랜덤으로 시나리오 하나 선택 (가중치 로직 등 추가 가능)
+        int index = Random.Range(0, _eventDuoPresets.Count);
+        DuoScenario scenario = _eventDuoPresets[index];
+
+        _currentActiveCustomers = 2;
+        CreateCustomerAtSeat(_seatLeft, scenario.LeftProfile);
+        CreateCustomerAtSeat(_seatRight, scenario.RightProfile);
+
+        // TODO: 여기서 두 손님에게 "너네는 일행이야"라고 알려주는 로직 추가 가능
+        // 예: customerL.SetPartner(customerR);
+    }
+
+    private void CreateCustomerAtSeat(SeatSlot seat, CustomerProfile profile)
+    {
+        if (_customerPrefab == null) return;
+
+        // 생성
+        GameObject obj = Instantiate(_customerPrefab, transform.position, Quaternion.identity);
+        Customer customer = obj.GetComponent<Customer>();
+
+        if (customer != null)
+        {
+            customer.InitializeProfile(profile);
+
+            // [중요] 나갈 때 나한테 보고해! (콜백 연결)
+            customer.SetExitCallback(OnCustomerExit);
+
+            seat.AssignCustomer(customer);
+        }
     }
 }

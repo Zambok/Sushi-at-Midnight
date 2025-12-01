@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using PixelCrushers.DialogueSystem;
+using System;
 
 public class Customer : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class Customer : MonoBehaviour
     [SerializeField] private int _bounceVibrato = 10;        // 떨림 정도 (기본 10)
     [SerializeField] private float _bounceElasticity = 1f;   // 탄성 (0~1)
 
+    private Action<Customer> _onExitCallback;
   
     private CustomerState _currentState = CustomerState.None;
     private float _currentPatienceTime;
@@ -51,6 +53,11 @@ public class Customer : MonoBehaviour
     private void Update()
     {
         UpdatePatience();
+    }
+
+    public void SetExitCallback(Action<Customer> callback)
+    {
+        _onExitCallback = callback;
     }
 
     private void InitializeCustomer()
@@ -149,7 +156,7 @@ public class Customer : MonoBehaviour
 
     public void MoveToSeat(Vector3 seatPosition)
     {
-        transform.position = seatPosition + new Vector3(0, 0.339f, -0.1f);
+        transform.position = seatPosition + new Vector3(0, 0.43f, -0.1f);
 
         // Dotween: 일단 검은색으로 시작
         if (_spriteRenderer != null)
@@ -196,6 +203,9 @@ public class Customer : MonoBehaviour
             _currentSeat.ClearSeat();
             _currentSeat = null;
         }
+
+        // [추가] 매니저에게 "저 가요~" 하고 알림
+        _onExitCallback?.Invoke(this);
 
         Destroy(gameObject);
     }
