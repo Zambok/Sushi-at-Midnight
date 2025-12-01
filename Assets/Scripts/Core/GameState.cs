@@ -4,6 +4,7 @@ public enum GameState
     Ready,
     Playing,
     Paused,
+    Crafting,
     Result
 }
 
