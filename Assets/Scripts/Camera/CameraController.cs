@@ -6,8 +6,8 @@ public class CameraController : MonoBehaviour
     public static CameraController Instance { get; private set; }
 
     [Header("Virtual Cameras")]
-    [SerializeField] private CinemachineCamera _vCamCounter; // CM vCam_Counter ¿¬°á
-    [SerializeField] private CinemachineCamera _vCamKitchen; // CM vCam_Kitchen ¿¬°á
+    [SerializeField] private CinemachineCamera _vCamCounter; // CM vCam_Counter ì—°ê²°
+    [SerializeField] private CinemachineCamera _vCamKitchen; // CM vCam_Kitchen ì—°ê²°
 
     private void Awake()
     {
@@ -16,30 +16,30 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        _vCamCounter.Priority = 10; // ÃÊ±â¿¡´Â È¦ Ä«¸Ş¶ó È°¼ºÈ­
+        _vCamCounter.Priority = 10; // ì´ˆê¸°ì—ëŠ” í™€ ì¹´ë©”ë¼ í™œì„±í™”
         _vCamKitchen.Priority = 0;
     }
 
-    // ÁÖ¹æÀ¸·Î ÀÌµ¿
+    // ì£¼ë°©ìœ¼ë¡œ ì´ë™
     public void MoveToKitchen()
     {
-        // ÁÖ¹æ Ä«¸Ş¶óÀÇ ¿ì¼±¼øÀ§¸¦ ³ôÀÓ
+        // ì£¼ë°© ì¹´ë©”ë¼ì˜ ìš°ì„ ìˆœìœ„ë¥¼ ë†’ì„
         _vCamKitchen.Priority = 10;
         _vCamCounter.Priority = 0;
     }
 
-    // È¦·Î º¹±Í
+    // í™€ë¡œ ë³µê·€
     public void MoveToCounter()
     {
-        // È¦ Ä«¸Ş¶óÀÇ ¿ì¼±¼øÀ§¸¦ ³ôÀÓ
+        // í™€ ì¹´ë©”ë¼ì˜ ìš°ì„ ìˆœìœ„ë¥¼ ë†’ì„
         _vCamCounter.Priority = 10;
         _vCamKitchen.Priority = 0;
     }
 
-    // (¼±ÅÃ) Æ¯Á¤ ¼Õ´Ô ÁÜÀÎ È¿°ú - ½ºÅä¸® ¸ğµå¿ë
+    // (ì„ íƒ) íŠ¹ì • ì†ë‹˜ ì¤Œì¸ íš¨ê³¼ - ìŠ¤í† ë¦¬ ëª¨ë“œìš©
     public void FocusOnTarget(Transform target)
     {
-        // º°µµÀÇ vCam_Zoom ÇÏ³ª¸¦ ´õ ¸¸µé¾î¼­
-        // Follow ´ë»óÀ» targetÀ¸·Î ¹Ù²Ù°í Priority¸¦ ³ôÀÌ´Â ¹æ½ÄÀ¸·Î ±¸Çö °¡´É
+        // ë³„ë„ì˜ vCam_Zoom í•˜ë‚˜ë¥¼ ë” ë§Œë“¤ì–´ì„œ
+        // Follow ëŒ€ìƒì„ targetìœ¼ë¡œ ë°”ê¾¸ê³  Priorityë¥¼ ë†’ì´ëŠ” ë°©ì‹ìœ¼ë¡œ êµ¬í˜„ ê°€ëŠ¥
     }
 }
