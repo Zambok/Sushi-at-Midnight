@@ -32,6 +32,46 @@ public class OrderManager : MonoBehaviour
         }
     }
 
+    // OrderManager.cs 안에 추가
+
+    // 특정 레시피 이름으로 주문을 강제 생성하는 함수 (대화 연동용)
+    public Order CreateSpecificOrder(Customer customer, string recipeName, string requestType = "")
+    {
+        // 1. 이름으로 레시피 찾기
+        SushiRecipe targetRecipe = null;
+        foreach (var recipe in _availableRecipes)
+        {
+            if (recipe.name.Equals(recipeName, System.StringComparison.OrdinalIgnoreCase) ||
+                recipe.SushiType.ToString().Equals(recipeName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                targetRecipe = recipe;
+                break;
+            }
+        }
+
+        if (targetRecipe == null)
+        {
+            Debug.LogError($"OrderManager: '{recipeName}' 레시피를 찾을 수 없습니다!");
+            return null;
+        }
+
+        // 2. 요청사항(Request) 처리 (필요시 확장 가능)
+        SushiCustomRequest customRequest = null;
+        if (!string.IsNullOrEmpty(requestType))
+        {
+            if (requestType == "RiceLess") customRequest = SushiCustomRequest.CreateRiceLess();
+            else if (requestType == "ThickFish") customRequest = SushiCustomRequest.CreateThickFish();
+            // ... 필요한 만큼 추가
+        }
+
+        // 3. 주문 생성 및 등록
+        Order order = new Order(targetRecipe, customRequest, customer, _defaultOrderTimeLimit);
+        _activeOrders.Add(order);
+        customer.SetOrder(order);
+
+        return order;
+    }
+
     public Order CreateOrderForCustomer(Customer customer)
     {
         SushiRecipe recipe = GetRandomRecipe();
