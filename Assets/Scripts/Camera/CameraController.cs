@@ -14,6 +14,12 @@ public class CameraController : MonoBehaviour
         if (Instance == null) Instance = this;
     }
 
+    private void Start()
+    {
+        _vCamCounter.Priority = 10; // 초기에는 홀 카메라 활성화
+        _vCamKitchen.Priority = 0;
+    }
+
     // 주방으로 이동
     public void MoveToKitchen()
     {

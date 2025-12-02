@@ -642,6 +642,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 03dcd5c0f03a5ea43ae0aad6711bb3dd, type: 2}
     - target: {fileID: 11426072, guid: 58ac37417e60e534f91138088a3e6f70, type: 3}
+      propertyPath: displaySettings.subtitleSettings.continueButton
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11426072, guid: 58ac37417e60e534f91138088a3e6f70, type: 3}
       propertyPath: displaySettings.localizationSettings.useSystemLanguage
       value: 1
       objectReference: {fileID: 0}
@@ -693,8 +697,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Priority:
-    Enabled: 0
-    m_Value: 0
+    Enabled: 1
+    m_Value: 10
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -1072,8 +1076,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 382825328}
-  - {fileID: 197636358}
   - {fileID: 945931930}
+  - {fileID: 197636358}
   - {fileID: 1871526439}
   - {fileID: 97471642}
   m_Father: {fileID: 0}
@@ -1479,7 +1483,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Priority:
-    Enabled: 0
+    Enabled: 1
     m_Value: 0
   OutputChannel: 1
   StandbyUpdate: 2
