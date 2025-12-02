@@ -526,7 +526,7 @@ MonoBehaviour:
       conditionPriority: 2
       outgoingLinks:
       - originConversationID: 1
-        originDialogueID: 8
+        originDialogueID: 12
         destinationConversationID: 1
         destinationDialogueID: 13
         isConnector: 0
@@ -570,6 +570,10 @@ MonoBehaviour:
         type: 0
         typeString: 
       - title: Sequence
+        value: StartCooking(Salmon,RiceLess)@Message(Clicked)
+        type: 0
+        typeString: 
+      - title: Response Menu Sequence
         value: 
         type: 0
         typeString: 
