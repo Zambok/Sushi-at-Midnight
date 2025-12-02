@@ -194,8 +194,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 481.1818
-        y: 77.272736
+        x: 184
+        y: 50
         width: 160
         height: 30
     - id: 1
@@ -260,8 +260,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 366.80942
-        y: 168.01067
+        x: 184
+        y: 134
         width: 160
         height: 30
     - id: 3
@@ -315,8 +315,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 294.72693
-        y: 276.71655
+        x: 80
+        y: 218
         width: 160
         height: 30
     - id: 4
@@ -371,8 +371,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 573.42786
-        y: 276.71652
+        x: 288
+        y: 218
         width: 160
         height: 30
     - id: 5
@@ -426,8 +426,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 282.16382
-        y: 386.59885
+        x: 80
+        y: 302
         width: 160
         height: 30
     - id: 12
@@ -456,6 +456,10 @@ MonoBehaviour:
         value: 
         type: 0
         typeString: 
+      - title: Conversant
+        value: 
+        type: 5
+        typeString: CustomFieldType_Actor
       conversationID: 1
       isRoot: 0
       isGroup: 0
@@ -465,7 +469,7 @@ MonoBehaviour:
       conditionPriority: 2
       outgoingLinks:
       - originConversationID: 1
-        originDialogueID: 6
+        originDialogueID: 12
         destinationConversationID: 1
         destinationDialogueID: 8
         isConnector: 0
@@ -477,8 +481,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 259.58554
-        y: 422.36353
+        x: 80
+        y: 386
         width: 160
         height: 30
     - id: 8
@@ -522,7 +526,7 @@ MonoBehaviour:
       conditionPriority: 2
       outgoingLinks:
       - originConversationID: 1
-        originDialogueID: 12
+        originDialogueID: 8
         destinationConversationID: 1
         destinationDialogueID: 13
         isConnector: 0
@@ -534,8 +538,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 292.41174
-        y: 474.4532
+        x: 80
+        y: 470
         width: 160
         height: 30
     - id: 13
@@ -566,7 +570,7 @@ MonoBehaviour:
         type: 0
         typeString: 
       - title: Sequence
-        value: StartCooking(Salmon,RiceLess)@Message(Clicked)
+        value: 
         type: 0
         typeString: 
       - title: Response Menu Sequence
@@ -580,7 +584,13 @@ MonoBehaviour:
       delaySimStatus: 0
       falseConditionAction: Block
       conditionPriority: 2
-      outgoingLinks: []
+      outgoingLinks:
+      - originConversationID: 1
+        originDialogueID: 13
+        destinationConversationID: 1
+        destinationDialogueID: 15
+        isConnector: 0
+        priority: 2
       conditionsString: 
       userScript: 
       onExecute:
@@ -588,8 +598,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 290.0589
-        y: 546.80615
+        x: 390.58817
+        y: 437.52948
         width: 160
         height: 30
     - id: 14
@@ -644,8 +654,57 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 569.89844
-        y: 384.36356
+        x: 288
+        y: 302
+        width: 160
+        height: 30
+    - id: 15
+      fields:
+      - title: Title
+        value: 
+        type: 0
+        typeString: 
+      - title: Description
+        value: 
+        type: 0
+        typeString: 
+      - title: Actor
+        value: 1
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Conversant
+        value: 2
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Menu Text
+        value: 
+        type: 0
+        typeString: 
+      - title: Dialogue Text
+        value: 
+        type: 0
+        typeString: 
+      - title: Sequence
+        value: StartCooking(Salmon,RiceLess)
+        type: 0
+        typeString: 
+      conversationID: 1
+      isRoot: 0
+      isGroup: 0
+      nodeColor: 
+      delaySimStatus: 0
+      falseConditionAction: Block
+      conditionPriority: 2
+      outgoingLinks: []
+      conditionsString: 
+      userScript: 
+      onExecute:
+        m_PersistentCalls:
+          m_Calls: []
+      canvasRect:
+        serializedVersion: 2
+        x: 410.58817
+        y: 546.353
         width: 160
         height: 30
     entryGroups: []
