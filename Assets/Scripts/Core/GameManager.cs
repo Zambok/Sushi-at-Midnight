@@ -12,9 +12,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private OrderManager _orderManager;
     [SerializeField] private ScoreManager _scoreManager;
 
-    // [추가] 카메라 컨트롤러나 주방 컨트롤러 참조가 필요할 수 있음
-    // (싱글톤으로 접근한다면 필수는 아님)
-
     private void Awake()
     {
         InitializeSingleton();
@@ -52,16 +49,14 @@ public class GameManager : MonoBehaviour
     }
 
     // -----------------------------------------------------------------------
-    // [새로 추가된 로직] 주방 <-> 홀 전환 관리
+    // [수정된 로직] 주방 <-> 홀 전환 관리 (통합 컨트롤러 사용)
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// 주문을 수락하고 주방으로 이동합니다. (UI 버튼에서 호출)
+    /// 주문을 수락하고 주방으로 이동합니다.
     /// </summary>
-    /// <param name="order">만들어야 할 주문 정보</param>
     public void GoToKitchen(Order order)
     {
-        // 이미 요리 중이거나 게임 중이 아니면 무시
         if (CurrentState != GameState.Playing)
         {
             Debug.LogWarning("Cannot go to kitchen: Game is not in Playing state.");
@@ -71,22 +66,23 @@ public class GameManager : MonoBehaviour
         // 1. 상태 변경
         ChangeState(GameState.Crafting);
 
-        // 2. 카메라 이동 (Cinemachine)
-        if (CameraController.Instance != null)
+        // 2. 통합 뷰 컨트롤러를 통해 주방으로 이동 (Fade 효과 포함)
+        if (KitchenStationController.Instance != null)
         {
-            CameraController.Instance.MoveToKitchen();
+            KitchenStationController.Instance.EnterKitchenMode();
+        }
+        else
+        {
+            Debug.LogError("KitchenStationController가 씬에 없습니다!");
         }
 
         // 3. 주방 컨트롤러에게 주문 전달 (초밥 만들기 세팅)
-        // (SushiCraftController를 싱글톤이나 FindObject로 찾아야 함)
-        var craftController = FindFirstObjectByType<SushiCraftController>();
+        // (호환성을 위해 FindObjectOfType 사용 권장)
+        var craftController = FindObjectOfType<SushiCraftController>();
         if (craftController != null)
         {
-            craftController.StartCraft(order.BaseRecipe); // 혹은 Order 전체 전달
+            craftController.StartCraft(order.BaseRecipe);
         }
-
-        // 4. (선택) UI 매니저가 있다면 주방 UI 켜기
-        // UIManager.Instance.SetMode(UIMode.Kitchen);
     }
 
     /// <summary>
@@ -94,7 +90,6 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ReturnToHall()
     {
-        // 요리 중이 아니면 무시
         if (CurrentState != GameState.Crafting)
         {
             return;
@@ -103,59 +98,38 @@ public class GameManager : MonoBehaviour
         // 1. 상태 변경
         ChangeState(GameState.Playing);
 
-        // 2. 카메라 이동
-        if (CameraController.Instance != null)
+        // 2. 통합 뷰 컨트롤러를 통해 홀로 복귀 (Fade 효과 포함)
+        if (KitchenStationController.Instance != null)
         {
-            CameraController.Instance.MoveToCounter();
+            KitchenStationController.Instance.ExitKitchenMode();
         }
-
-        // 3. (선택) UI 매니저가 있다면 홀 UI 켜기
-        // UIManager.Instance.SetMode(UIMode.Hall);
     }
 
     // -----------------------------------------------------------------------
 
     public void PauseGame()
     {
-        if (CurrentState != GameState.Playing && CurrentState != GameState.Crafting)
-        {
-            return;
-        }
-
-        // 이전 상태 저장 필요할 수도 있음 (Pause UI 등에서 처리)
+        if (CurrentState != GameState.Playing && CurrentState != GameState.Crafting) return;
         ChangeState(GameState.Paused);
         Time.timeScale = 0f;
     }
 
     public void ResumeGame()
     {
-        if (CurrentState != GameState.Paused)
-        {
-            return;
-        }
-
-        // 돌아갈 때는 일단 Playing으로 가되, 
-        // 만약 요리 중에 일시정지했다면 Crafting으로 가야 하는 로직 추가 필요
-        // (간단하게 구현하려면 Pause 직전 상태를 변수에 저장해둬야 함)
-
-        ChangeState(GameState.Playing); // 임시 복귀
+        if (CurrentState != GameState.Paused) return;
+        ChangeState(GameState.Playing);
         Time.timeScale = 1f;
     }
 
     public void EndGame()
     {
         ChangeState(GameState.Result);
-
-        if (_customerManager != null)
-        {
-            _customerManager.EndService();
-        }
+        if (_customerManager != null) _customerManager.EndService();
     }
 
     private void ChangeState(GameState newState)
     {
         if (CurrentState == newState) return;
-
         CurrentState = newState;
         Debug.Log($"Game State Changed: {newState}");
     }

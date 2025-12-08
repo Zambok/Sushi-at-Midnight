@@ -526,7 +526,7 @@ MonoBehaviour:
       conditionPriority: 2
       outgoingLinks:
       - originConversationID: 1
-        originDialogueID: 12
+        originDialogueID: 8
         destinationConversationID: 1
         destinationDialogueID: 13
         isConnector: 0
@@ -570,7 +570,11 @@ MonoBehaviour:
         type: 0
         typeString: 
       - title: Sequence
-        value: StartCooking(Salmon,RiceLess)@Message(Clicked)
+        value: 
+        type: 0
+        typeString: 
+      - title: Response Menu Sequence
+        value: 
         type: 0
         typeString: 
       - title: Response Menu Sequence
@@ -602,8 +606,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 390.58817
-        y: 437.52948
+        x: 381.17636
+        y: 464.58832
         width: 160
         height: 30
     - id: 14
@@ -707,13 +711,13 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 410.58817
-        y: 546.353
+        x: 549.10126
+        y: 542.8236
         width: 160
         height: 30
     entryGroups: []
-    canvasScrollPosition: {x: 0, y: 10.890373}
-    canvasZoom: 0.85000014
+    canvasScrollPosition: {x: 37.433296, y: 92.020355}
+    canvasZoom: 0.9100001
   syncInfo:
     syncActors: 0
     syncItems: 0
